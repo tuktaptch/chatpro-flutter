@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "161629204198",
+    "project_id": "flutterchatpro-f3011",
+    "storage_bucket": "flutterchatpro-f3011.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161629204198:android:74aae8b57ea870239f9527",
+        "android_client_info": {
+          "package_name": "com.phitthayarat.chatpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKE8wpKDASYUUmPWA1PcnVOCqTnTVHIfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
