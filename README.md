@@ -2,6 +2,15 @@
 
 A Flutter application I'm currently developing to practice **clean architecture**, **state management**, and **modern UI design**.  
 This project aims to explore reusable widget patterns and real-time data handling with Firebase.
+<img width="1920" height="1080" alt="1" src="https://github.com/user-attachments/assets/f3a8f306-e9c6-4d2c-ac45-0d997cbc0437" />
+<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/65e6491d-db90-4035-867d-3d2302a5a285" />
+<img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/bab5e316-82a6-4d25-818b-a5be15d8aca2" />
+<img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/6cbb4c15-2136-464b-900b-579c8db78ea1" />
+<img width="1920" height="1080" alt="5" src="https://github.com/user-attachments/assets/15716d6c-2027-4b52-aee8-a1469cc4cd99" />
+<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/e4b142dd-a74e-48a8-84f4-4ff6555a2f4e" />
+<img width="1920" height="1080" alt="7" src="https://github.com/user-attachments/assets/08e13095-0fed-459f-a078-d54e1d9f3079" />
+<img width="1920" height="1080" alt="8" src="https://github.com/user-attachments/assets/0738f45b-d3c8-4463-9165-d4bd0d6dfcfb" />
+<img width="1920" height="1080" alt="9" src="https://github.com/user-attachments/assets/074de34e-63a8-41c9-922a-21e33354cdb8" />
 
 ---
 
