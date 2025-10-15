@@ -1,11 +1,11 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:chat_pro/authentication/landing_page_screen.dart';
-import 'package:chat_pro/authentication/login/login_screen.dart';
-import 'package:chat_pro/di/service_locator.dart';
+import 'package:chat_pro/constraints/c_colors.dart';
+import 'package:chat_pro/di/modules/service_locator.dart';
 import 'package:chat_pro/firebase_options.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
 import 'package:chat_pro/route.dart';
-import 'package:chat_pro/services/navigation_service.dart';
+import 'package:chat_pro/di/modules/services/navigation_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +37,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AdaptiveTheme(
       light: ThemeData.light(useMaterial3: true),
-      dark: ThemeData.dark(useMaterial3: true),
+      dark: ThemeData.dark(useMaterial3: true).copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: CColors.hotPink,
+          brightness: Brightness.dark,
+        ),
+        textTheme: ThemeData.dark().textTheme.apply(
+          bodyColor: CColors.pureWhite, // สีข้อความปกติ
+          displayColor: CColors.pureWhite, // สีหัวข้อใหญ่ ๆ
+        ),
+      ),
       initial: savedThemeMode ?? AdaptiveThemeMode.light,
       builder: (light, dark) => MaterialApp(
         debugShowCheckedModeBanner: false,

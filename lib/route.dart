@@ -9,6 +9,7 @@ import 'package:chat_pro/main_screen/home_screen/home_screen.dart';
 import 'package:chat_pro/main_screen/home_screen/home_screen_provider.dart';
 import 'package:chat_pro/main_screen/profile_screen/profile_screen.dart';
 import 'package:chat_pro/main_screen/profile_screen/profile_screen_provider.dart';
+import 'package:chat_pro/main_screen/setting_screen.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,5 +45,6 @@ class ChatProRoute {
           ProfileScreenProvider(context.read<AuthenticationProvider>()),
       child: ProfileScreen(),
     ),
+    SettingScreen.routeName: (context) => SettingScreen(),
   };
 }

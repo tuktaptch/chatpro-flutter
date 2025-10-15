@@ -1,7 +1,7 @@
 import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/constraints/c_typography.dart';
-import 'package:chat_pro/di/service_locator.dart';
-import 'package:chat_pro/services/navigation_service.dart';
+import 'package:chat_pro/di/modules/service_locator.dart';
+import 'package:chat_pro/di/modules/services/navigation_service.dart';
 import 'package:chat_pro/widgets/button/large_button.dart';
 import 'package:chat_pro/widgets/modal/modal.dart';
 import 'package:flutter/material.dart';

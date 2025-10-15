@@ -2,6 +2,7 @@ import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/constraints/c_typography.dart';
 import 'package:chat_pro/constraints/spacing.dart';
 import 'package:chat_pro/main_screen/profile_screen/profile_screen_provider.dart';
+import 'package:chat_pro/main_screen/setting_screen.dart';
 import 'package:chat_pro/models/user_model.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
 import 'package:chat_pro/widgets/avartar/user_image_avertar.dart';
@@ -35,7 +36,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: CColors.background,
-      appBar: _buildAppBar(context),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Selector<ProfileScreenProvider, String>(
+          selector: (_, provider) => provider.uid,
+          builder: (context, uid, _) {
+            return _buildAppBar(context, uid);
+          },
+        ),
+      ),
       body: Selector<ProfileScreenProvider, String>(
         selector: (_, provider) => provider.uid,
         builder: (context, uid, _) {
@@ -78,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  CAppBar _buildAppBar(BuildContext context) {
+  CAppBar _buildAppBar(BuildContext context, String uid) {
     return CAppBar(
       backgroundColor: CColors.background,
       leading: IconButton(
@@ -87,6 +96,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         icon: Icon(Icons.arrow_back_ios, color: CColors.darkGray),
       ),
       title: 'Profile',
+      actions: [
+        IconButton(
+          onPressed: () async => await Navigator.pushNamed(
+            context,
+            SettingScreen.routeName,
+            arguments: SettingScreenArguments(uid: uid),
+          ),
+          icon: const Icon(Icons.settings, color: CColors.darkGray),
+        ),
+      ],
     );
   }
 
@@ -172,6 +191,12 @@ class ProfileHeader extends StatelessWidget {
                           ),
                         ),
                         Text(
+                          userModel.phoneNumber,
+                          style: CTypography.body1.copyWith(
+                            color: CColors.extraLight,
+                          ),
+                        ),
+                        Text(
                           userModel.aboutMe,
                           style: CTypography.body1.copyWith(
                             color: CColors.extraLight,
@@ -227,9 +252,9 @@ class ActionList extends StatelessWidget {
       child: Column(
         children: [
           if (currentUser?.uid == userModel.uid) ...[
-            if ((userModel.friendRequestsUIDs.isNotEmpty))
+            if (userModel.friendRequestsUIDs.isNotEmpty)
               CListItem(
-                leading: const GradientIcon(icon: Icons.view_module_sharp),
+                leading: const GradientIcon(icon: Icons.person_add),
                 title: 'View Friend Requests',
                 subtitle:
                     'Check new requests from people who’d like to connect',
@@ -239,12 +264,37 @@ class ActionList extends StatelessWidget {
                   color: CColors.grayBlue,
                 ),
                 onTap: () {
-                  //Navigate to friend requests screen.
+                  // Navigate to friend requests screen
                 },
               ),
-          ] else ...[
-            SizedBox(),
-          ],
+            if (userModel.friendsUIDs.isNotEmpty)
+              CListItem(
+                leading: const GradientIcon(icon: Icons.groups_2),
+                title: 'View Friends',
+                subtitle: 'A list of your current friends',
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: CColors.grayBlue,
+                ),
+                onTap: () {
+                  // Navigate to friends screen
+                },
+              ),
+          ] else
+            CListItem(
+              leading: const GradientIcon(icon: Icons.send),
+              title: 'Send Friend Request',
+              subtitle: 'Invite someone to join your network',
+              trailing: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 18,
+                color: CColors.grayBlue,
+              ),
+              onTap: () {
+                // Navigate to send request screen
+              },
+            ),
         ],
       ),
     );

@@ -60,19 +60,25 @@ class AuthenticationProvider extends ChangeNotifier {
     return userDoc.exists;
   }
 
-  // ดึงข้อมูลผู้ใช้งานจาก Firestore
   Future<void> fetchUserDataFromFireStore() async {
-    final userDoc = await _firestore
-        .collection(Constants.users) // collection ของผู้ใช้งาน
-        .doc(_uid) // document ตาม UID
-        .get(); // ดึงข้อมูล document
-    // if (userDoc.exists) {
-    // ถ้า document มีอยู่
-    _userModel = UserModel.fromMap(
-      userDoc.data() as Map<String, dynamic>,
-    ); // แปลง
-    notifyListeners(); // แจ้ง UI รีเฟรช
-    // }
+    try {
+      final userDoc = await _firestore
+          .collection(Constants.users)
+          .doc(_uid)
+          .get();
+
+      if (!userDoc.exists || userDoc.data() == null) {
+        debugPrint('⚠️ User document not found for UID: $_uid');
+        return;
+      }
+
+      _userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
+
+      notifyListeners();
+    } catch (e, stack) {
+      debugPrint('❌ Error fetching user data: $e');
+      debugPrint(stack.toString());
+    }
   }
 
   //save user data to shared preference.
