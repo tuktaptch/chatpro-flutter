@@ -20,6 +20,9 @@ class CColors {
   static const paleBlue = Color(0xFFF1F6F8); // อ่อนมาก
   static const extraLight = Color(0xFFF7F9FA); // เกือบขาว
   static const pureWhite = Color(0xFFFFFFFF); // ขาวบริสุทธิ์
+  static const pinkWhisper = Color(0xFFFFFAFB);
+  static const chatLeftGray = Color(0xFFE4E6EB);
+
 
   /// Supplement Colors
   static const blue = Color(0xFF568EF5);

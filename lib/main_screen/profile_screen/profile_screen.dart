@@ -1,8 +1,11 @@
 import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/constraints/c_typography.dart';
 import 'package:chat_pro/constraints/spacing.dart';
+import 'package:chat_pro/main_screen/chat_screen/chat_screen.dart';
+import 'package:chat_pro/main_screen/friend_request_screen/friend_request_screen.dart';
+import 'package:chat_pro/main_screen/friend_screen/friend_screen.dart';
 import 'package:chat_pro/main_screen/profile_screen/profile_screen_provider.dart';
-import 'package:chat_pro/main_screen/setting_screen.dart';
+import 'package:chat_pro/main_screen/profile_screen/setting_screen/setting_screen.dart';
 import 'package:chat_pro/models/user_model.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
 import 'package:chat_pro/widgets/avartar/user_image_avertar.dart';
@@ -12,6 +15,7 @@ import 'package:chat_pro/widgets/c_list_item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tuple/tuple.dart';
 
 class ProfileScreen extends StatefulWidget {
   static const routeName = '/main_screen/profile_screen';
@@ -74,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     ProfileHeader(),
                     ConstSpacer.height16(),
-                    ActionList(userModel: userModel),
+                    ActionList(userModel: userModel, rootContext: context),
                   ],
                 ),
               );
@@ -206,10 +210,16 @@ class ProfileHeader extends StatelessWidget {
                     ),
                     const Spacer(),
                     if ((currentUser?.uid ?? '') == userModel.uid)
-                      IconButton(
-                        onPressed: () =>
-                            debugPrint('User UID: ${userModel.uid}'),
-                        icon: const Icon(Icons.edit, color: CColors.extraLight),
+                      Flexible(
+                        child: IconButton(
+                          padding: EdgeInsets.only(right: 8),
+                          onPressed: () =>
+                              debugPrint('User UID: ${userModel.uid}'),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: CColors.extraLight,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -235,12 +245,16 @@ class ProfileHeader extends StatelessWidget {
 
 class ActionList extends StatelessWidget {
   final UserModel userModel;
-  const ActionList({super.key, required this.userModel});
+  final BuildContext rootContext;
+  const ActionList({
+    super.key,
+    required this.userModel,
+    required this.rootContext,
+  });
 
   @override
   Widget build(BuildContext context) {
     final currentUser = context.read<AuthenticationProvider>().userModel;
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -263,9 +277,9 @@ class ActionList extends StatelessWidget {
                   size: 18,
                   color: CColors.grayBlue,
                 ),
-                onTap: () {
-                  // Navigate to friend requests screen
-                },
+                onTap: () =>
+                    // Navigate to friend requests screen
+                    Navigator.pushNamed(context, FriendRequestScreen.routeName),
               ),
             if (userModel.friendsUIDs.isNotEmpty)
               CListItem(
@@ -277,24 +291,83 @@ class ActionList extends StatelessWidget {
                   size: 18,
                   color: CColors.grayBlue,
                 ),
-                onTap: () {
-                  // Navigate to friends screen
-                },
+                onTap: () =>
+                    // Navigate to friends screen
+                    Navigator.pushNamed(context, FriendScreen.routeName),
               ),
-          ] else
-            CListItem(
-              leading: const GradientIcon(icon: Icons.send),
-              title: 'Send Friend Request',
-              subtitle: 'Invite someone to join your network',
-              trailing: const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 18,
-                color: CColors.grayBlue,
+          ] else ...[
+            //show cancle friend request button if user sent us friend request
+            //else show sent friend request button
+            Selector<ProfileScreenProvider, Tuple3<String, String, IconData>>(
+              selector: (_, provider) => Tuple3(
+                provider.displayTitleText(
+                  sentFriendRequestsUIDs: userModel.sentFriendRequestsUIDs,
+                  currentUser: currentUser?.uid ?? '',
+                  friendRequestsUIDs: userModel.friendRequestsUIDs,
+                  friendsUIDs: userModel.friendsUIDs,
+                ),
+                provider.displaySubTitleText(
+                  sentFriendRequestsUIDs: userModel.sentFriendRequestsUIDs,
+                  currentUser: currentUser?.uid ?? '',
+                  friendRequestsUIDs: userModel.friendRequestsUIDs,
+                  friendsUIDs: userModel.friendsUIDs,
+                ),
+                provider.displayIcon(
+                  sentFriendRequestsUIDs: userModel.sentFriendRequestsUIDs,
+                  currentUser: currentUser?.uid ?? '',
+                  friendRequestsUIDs: userModel.friendRequestsUIDs,
+                  friendsUIDs: userModel.friendsUIDs,
+                ),
               ),
-              onTap: () {
-                // Navigate to send request screen
+              builder: (_, data, __) {
+                final title = data.item1;
+                final subTitle = data.item2;
+                final icons = data.item3;
+
+                return CListItem(
+                  leading: GradientIcon(icon: icons),
+                  title: title,
+                  subtitle: subTitle,
+                  onTap: () =>
+                      context.read<ProfileScreenProvider>().onTapFriendRequest(
+                        context: rootContext,
+                        currentUser: currentUser?.uid ?? '',
+                        sentFriendRequestsUIDs:
+                            userModel.sentFriendRequestsUIDs,
+                        friendUID: userModel.uid,
+                        friendRequestsUIDs: userModel.friendRequestsUIDs,
+                        userName: userModel.name,
+                        friendsUIDs: userModel.friendsUIDs,
+                        rootContext: rootContext,
+                      ),
+                );
               },
             ),
+            // 🧩  if you have Unfriend and then display chat
+            if (userModel.friendsUIDs.contains(currentUser?.uid ?? ''))
+              CListItem(
+                title: 'Chat',
+                subtitle: 'start a conversation with a user.',
+                leading: GradientIcon(icon: Icons.chat),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: CColors.grayBlue,
+                ),
+                onTap: () =>
+                    // go to chat
+                    Navigator.pushNamed(
+                      context,
+                      ChatScreen.routeName,
+                      arguments: ChatScreenArguments(
+                        contactUID: userModel.uid,
+                        contactImage: userModel.image,
+                        contactName: userModel.name,
+                        groupId: '',
+                      ),
+                    ),
+              ),
+          ],
         ],
       ),
     );
@@ -337,24 +410,34 @@ class _LogoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = context.read<AuthenticationProvider>().userModel;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Expanded(
-            child: LargeButton(
-              prefixIcon: Icons.logout,
-              iconColor: CColors.hotPink,
-              buttonColor: CColors.lightPink,
-              onPressed: () {},
-              text: 'Log Out',
-              textColor: CColors.pinkOrange,
-              shadow: BoxShadow(
-                blurRadius: 6,
-                color: CColors.lightPink,
-                offset: Offset(0, 5),
-              ),
-            ),
+          Selector<ProfileScreenProvider, String>(
+            selector: (_, provider) => provider.uid,
+            builder: (context, uid, _) {
+              return currentUser?.uid == uid
+                  ? Expanded(
+                      child: LargeButton(
+                        prefixIcon: Icons.logout,
+                        iconColor: CColors.hotPink,
+                        buttonColor: CColors.lightPink,
+                        onPressed: () => context
+                            .read<ProfileScreenProvider>()
+                            .showConfirmLogOut(context),
+                        text: 'Log Out ',
+                        textColor: CColors.pinkOrange,
+                        shadow: BoxShadow(
+                          blurRadius: 6,
+                          color: CColors.lightPink,
+                          offset: const Offset(0, 5),
+                        ),
+                      ),
+                    )
+                  : SizedBox();
+            },
           ),
         ],
       ),

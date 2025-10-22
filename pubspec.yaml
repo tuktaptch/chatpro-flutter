@@ -107,6 +107,36 @@ dependencies:
   #A flutter library to show images from the internet and keep them in the cache directory.
   cached_network_image: ^3.4.1
 
+  #A library providing a tuple data structure.
+  tuple: ^2.0.2
+
+  #A package provides an easy way to add shimmer effect in Flutter project.
+  shimmer: ^3.0.0
+
+  #A simple API to format dates.
+  date_format: ^2.0.9
+
+  #A flutter ListView in which list items can be grouped to sections.
+  grouped_list: ^6.0.0
+
+  #SwipeTo is a wrapper for a chat view widget which can be used 
+  #initiate callback when user horizontally swipe on it.
+  swipe_to: ^1.0.6
+
+  #timeago is a dart library that converts a date into a humanized text.
+  timeago: ^3.7.1
+
+  #Audio recorder from microphone 
+  flutter_sound_record: ^3.3.2
+
+  #A Flutter plugin to play multiple simultaneously audio files.
+  audioplayers: ^6.5.1
+
+  #video_player package except that it supports caching in Android and iOS.
+  cached_video_player: ^2.0.4
+
+
+
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_pro/utilities/assets_manager.dart';
 
 /// Standard avatar sizes
 enum CAvatarSize {
@@ -13,7 +13,7 @@ enum CAvatarSize {
   large,
 
   /// Extra Large (diameter = 120)
-  extraLarge
+  extraLarge,
 }
 
 /// Circular avatar widget that supports both network images and a fallback asset.
@@ -70,32 +70,26 @@ class CAvatar extends StatelessWidget {
       backgroundColor: showBorder ? Colors.white : Colors.transparent,
       child: ClipOval(
         child: hasImage
-            ? Image.network(
-                imageUrl!,
-                width: radius * 2,
-                height: radius * 2,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return SizedBox(
+            ? ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  width: radius * 2,
+                  height: radius * 2,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: SizedBox(
+                      width: radius / 1.2,
+                      height: radius / 1.2,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/user.png',
                     width: radius * 2,
                     height: radius * 2,
-                    child: Center(
-                      child: SizedBox(
-                        width: radius / 1.2,
-                        height: radius / 1.2,
-                        child: const CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  // Fallback asset when network image fails to load
-                  return CircleAvatar(
-                    radius: radius,
-                    backgroundImage: const AssetImage(AssetsManager.userImage),
-                  );
-                },
+                    fit: BoxFit.cover,
+                  ),
+                ),
               )
             : const CircleAvatar(
                 // Fallback asset when no imageUrl is provided

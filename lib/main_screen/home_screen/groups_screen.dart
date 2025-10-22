@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class GroupsScreen extends StatefulWidget {
@@ -11,6 +10,6 @@ class GroupsScreen extends StatefulWidget {
 class _GroupsScreenState extends State<GroupsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Groups')));
+    return Scaffold(body: Center(child: Text('Waiting to implement Group')));
   }
 }

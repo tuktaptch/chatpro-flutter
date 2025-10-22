@@ -54,6 +54,8 @@ Future<T?> modal<T>({
   /// Whether tapping outside the modal dismisses it.
   /// Defaults to true.
   bool isBarrierDismissible = true,
+
+  bool isHorizontalBtn = true,
 }) {
   return showDialog<T>(
     context: context,
@@ -131,7 +133,10 @@ Future<T?> modal<T>({
                           ),
                         ),
                       ),
-                    Row(children: widgetButton ?? [const SizedBox()]),
+                    if (isHorizontalBtn)
+                      Row(children: widgetButton ?? [const SizedBox()])
+                    else
+                      Column(children: widgetButton ?? [const SizedBox()]),
                   ],
                 ),
               ),

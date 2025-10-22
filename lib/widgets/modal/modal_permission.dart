@@ -65,3 +65,32 @@ Future<bool?> showStoragePermissionModal() => modal<bool>(
     ),
   ],
 );
+
+Future<bool?> showMicroPhonePermissionModal() => modal<bool>(
+  context: _context,
+  title: 'Enable Microphone Access',
+  isCloseBtn: false,
+  modalContent: Column(
+    children: [
+      const Icon(Icons.mic, size: 64, color: CColors.pinkOrange),
+      const SizedBox(height: 16),
+      DefaultTextStyle(
+        style: CTypography.body3.copyWith(color: CColors.grayBlue),
+        child: Text(
+          'Please allow microphone access so the app can record audio and provide full functionality.',
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ],
+  ),
+  widgetButton: [
+    Expanded(
+      child: LargeButton(
+        buttonColor: CColors.pinkOrange,
+        textColor: CColors.pureWhite,
+        text: 'Go to Settings',
+        onPressed: () => Navigator.pop(_context, true),
+      ),
+    ),
+  ],
+);

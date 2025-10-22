@@ -73,4 +73,27 @@ class CPermission {
 
     return true;
   }
+
+  static Future<bool> checkMicrophonePermission() async {
+    final permission = Permission.microphone;
+    final status = await permission.status;
+
+    if (status.isDenied) {
+      final result = await permission.request();
+
+      if (!result.isGranted) {
+        final bool? openSettings = await showMicroPhonePermissionModal();
+        if (openSettings ?? false) await appSettings.openAppSettings();
+        return false;
+      }
+    } else if (status.isPermanentlyDenied) {
+      final bool? openSettings = await showMicroPhonePermissionModal();
+      if (openSettings ?? false) await appSettings.openAppSettings();
+      return false;
+    } else if (status.isGranted) {
+      return true;
+    }
+
+    return true;
+  }
 }

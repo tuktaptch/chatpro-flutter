@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:chat_pro/authentication/otp/otp_screen.dart';
 import 'package:chat_pro/constraints/constants.dart';
 import 'package:chat_pro/models/user_model.dart';
+import 'package:chat_pro/utilities/firebase_storage_util.dart';
 import 'package:chat_pro/utilities/global_method.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -228,7 +229,7 @@ class AuthenticationProvider extends ChangeNotifier {
     try {
       // ตรวจสอบว่าผู้ใช้มีรูปภาพหรือไม่
       if (fileImage != null) {
-        String imageUrl = await storeFileToStorage(
+        String imageUrl = await FirebaseStorageUtil.storeFileToStorage(
           file: fileImage,
           reference: '${Constants.userImages}/${userModel.uid}',
         );
@@ -267,19 +268,191 @@ class AuthenticationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //store file to storage and return file url.
-  Future<String> storeFileToStorage({
-    required file,
-    required String reference,
-  }) async {
-    UploadTask uploadTask = _storage.ref().child(reference).putFile(file);
-    TaskSnapshot snapshot = await uploadTask;
-    String fileUrl = await snapshot.ref.getDownloadURL();
-    return fileUrl;
-  }
-
   //get user stream
   Stream<DocumentSnapshot> usersStream({required String uid}) {
     return _firestore.collection(Constants.users).doc(uid).snapshots();
+  }
+
+  //get all user stream
+  Stream<QuerySnapshot> getAllUsersStream({required String uid}) {
+    return _firestore
+        .collection(Constants.users)
+        .where(Constants.uid, isNotEqualTo: uid)
+        .snapshots();
+  }
+
+  //send friend request
+  Future<void> sendFriendRequest({required String friendUID}) async {
+    try {
+      //add our uid to friend request list
+      await _firestore.collection(Constants.users).doc(friendUID).update({
+        Constants.friendRequestsUIDs: FieldValue.arrayUnion([_uid]),
+      });
+      //add friend uid to our friend request sent list
+      await _firestore.collection(Constants.users).doc(_uid).update({
+        Constants.sentFriendRequestsUIDs: FieldValue.arrayUnion([friendUID]),
+      });
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+  }
+
+  //cancel friend request
+  Future<void> cancelFriendRequest({required String friendUID}) async {
+    try {
+      //remove our uid from friends request list
+      await _firestore.collection(Constants.users).doc(friendUID).update({
+        Constants.friendRequestsUIDs: FieldValue.arrayRemove([_uid]),
+      });
+      //remove friend uid from our friend requests sent list
+      await _firestore.collection(Constants.users).doc(_uid).update({
+        Constants.sentFriendRequestsUIDs: FieldValue.arrayRemove([friendUID]),
+      });
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+  }
+
+  //accept friend request
+  Future<void> acceptFriendRequest({required String friendUID}) async {
+    try {
+      //add our uid to friends  list
+      await _firestore.collection(Constants.users).doc(friendUID).update({
+        Constants.friendsUIDs: FieldValue.arrayUnion([_uid]),
+      });
+      //add our uid to our  friends  list
+      await _firestore.collection(Constants.users).doc(_uid).update({
+        Constants.friendsUIDs: FieldValue.arrayUnion([friendUID]),
+      });
+      //remove our uid from friends request list
+      await _firestore.collection(Constants.users).doc(friendUID).update({
+        Constants.sentFriendRequestsUIDs: FieldValue.arrayRemove([_uid]),
+      });
+      //remove friend uid from our friend requests sent list
+      await _firestore.collection(Constants.users).doc(_uid).update({
+        Constants.friendRequestsUIDs: FieldValue.arrayRemove([friendUID]),
+      });
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+  }
+
+  //remove friend request
+  Future<void> removeFriendRequest({required String friendUID}) async {
+    try {
+      //remove our uid from friends list
+      await _firestore.collection(Constants.users).doc(friendUID).update({
+        Constants.friendsUIDs: FieldValue.arrayRemove([_uid]),
+      });
+      //remove friend uid from our friend list
+      await _firestore.collection(Constants.users).doc(_uid).update({
+        Constants.friendsUIDs: FieldValue.arrayRemove([friendUID]),
+      });
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<UserModel>> getFriendsList({required String uid}) async {
+    List<UserModel> friendList = [];
+
+    try {
+      // Get the current user's document
+      DocumentSnapshot documentSnapshot = await _firestore
+          .collection(Constants.users)
+          .doc(uid)
+          .get();
+
+      // Extract the list of friend UIDs
+      List<dynamic> friendUIDs = documentSnapshot.get(Constants.friendsUIDs);
+
+      // Loop through each friend UID and fetch their details
+      for (String friendUID in friendUIDs) {
+        DocumentSnapshot friendSnapshot = await _firestore
+            .collection(Constants.users)
+            .doc(friendUID)
+            .get();
+
+        if (friendSnapshot.exists) {
+          UserModel friend = UserModel.fromMap(
+            friendSnapshot.data() as Map<String, dynamic>,
+          );
+          friendList.add(friend);
+        }
+      }
+    } catch (e) {
+      // Log the error and return an empty list if fetching fails
+      print('Failed to get friends list: $e');
+      return [];
+    }
+
+    return friendList;
+  }
+
+  Future<List<UserModel>> getFriendsRequestList({required String uid}) async {
+    List<UserModel> friendRequestList = [];
+    try {
+      // Get the current user's document
+      DocumentSnapshot documentSnapshot = await _firestore
+          .collection(Constants.users)
+          .doc(uid)
+          .get();
+
+      // Extract the list of friend UIDs
+      List<dynamic> friendRequestUIDs = documentSnapshot.get(
+        Constants.friendRequestsUIDs,
+      );
+
+      // Loop through each friend UID and fetch their details
+      for (String friendRequestUID in friendRequestUIDs) {
+        DocumentSnapshot friendSnapshot = await _firestore
+            .collection(Constants.users)
+            .doc(friendRequestUID)
+            .get();
+
+        if (friendSnapshot.exists) {
+          UserModel friendRequest = UserModel.fromMap(
+            friendSnapshot.data() as Map<String, dynamic>,
+          );
+          friendRequestList.add(friendRequest);
+        }
+      }
+    } catch (e) {
+      // Log the error and return an empty list if fetching fails
+      print('Failed to get friends list: $e');
+      return [];
+    }
+    return friendRequestList;
+  }
+
+  // update user status
+  Future<void> updateUserStatus({required bool value}) async {
+    await _firestore
+        .collection(Constants.users)
+        .doc(_auth.currentUser!.uid)
+        .update({Constants.isOnline: value});
+  }
+
+  Future<void> logOut() async {
+    // TODO: Implement logOut functionality.
+    try {
+      await _auth.signOut();
+
+      // Clear locally stored user data
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // _uid = null;
+      // _phoneNumber = null;
+      // _userModel = null;
+      _isSuccessful = false;
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('❌ Error during logout: $e');
+    }
   }
 }

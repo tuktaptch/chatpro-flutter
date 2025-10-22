@@ -1,19 +1,60 @@
 import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/constraints/c_typography.dart';
-import 'package:chat_pro/main_screen/chats_list_screen.dart';
-import 'package:chat_pro/main_screen/groups_screen.dart';
+import 'package:chat_pro/main_screen/home_screen/my_chats_screen/my_chats_screen.dart';
+import 'package:chat_pro/main_screen/home_screen/groups_screen.dart';
 import 'package:chat_pro/main_screen/home_screen/home_screen_provider.dart';
-import 'package:chat_pro/main_screen/people_screen.dart';
+import 'package:chat_pro/main_screen/home_screen/my_chats_screen/my_chats_screen_providet.dart';
+import 'package:chat_pro/main_screen/home_screen/people_screen/people_screen.dart';
+import 'package:chat_pro/main_screen/home_screen/people_screen/people_screen_provider.dart';
 import 'package:chat_pro/main_screen/profile_screen/profile_screen.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
+import 'package:chat_pro/provider/chat_provider.dart';
 import 'package:chat_pro/widgets/avartar/user_image_avertar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rive_animated_icon/rive_animated_icon.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
   static String routeName = '/main/home';
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // user comes back to the app
+        // update user status to online
+        context.read<AuthenticationProvider>().updateUserStatus(value: true);
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        // app is inactive, paused, detached or hidden
+        // update user status to offline
+        context.read<AuthenticationProvider>().updateUserStatus(value: false);
+        break;
+    }
+    super.didChangeAppLifecycleState(state);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +84,7 @@ class _HomeBody extends StatelessWidget {
           final searchOpacity = (1 - (scrollOffset / 80)).clamp(0.0, 1.0);
 
           return NestedScrollView(
+            floatHeaderSlivers: false, // ✅ ป้องกัน gesture conflict
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               _HomeAppBar(
                 innerBoxIsScrolled: innerBoxIsScrolled,
@@ -67,10 +109,22 @@ class _HomeBody extends StatelessWidget {
               controller: provider.pageController,
               physics: const NeverScrollableScrollPhysics(),
               onPageChanged: provider.onPageChanged,
-              children: const [
-                ChatsListScreen(),
+              children: [
+                // MyChatsScreen wrapped with provider
+                ChangeNotifierProvider(
+                  create: (context) => MyChatsScreenProvider(
+                    context.read<ChatProvider>(),
+                    context.read<AuthenticationProvider>(),
+                  ),
+                  child: const MyChatsScreen(),
+                ),
                 GroupsScreen(),
-                PeopleScreen(),
+                ChangeNotifierProvider(
+                  create: (context) => PeopleScreenProvider(
+                    context.read<AuthenticationProvider>(),
+                  ),
+                  child: const PeopleScreen(),
+                ),
               ],
             ),
           );

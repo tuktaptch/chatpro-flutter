@@ -43,6 +43,8 @@ class CListItem extends StatelessWidget {
                       style: CTypography.body2.copyWith(
                         color: CColors.grayBlue,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),

@@ -4,6 +4,7 @@ import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/di/modules/service_locator.dart';
 import 'package:chat_pro/firebase_options.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
+import 'package:chat_pro/provider/chat_provider.dart';
 import 'package:chat_pro/route.dart';
 import 'package:chat_pro/di/modules/services/navigation_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_)=>ChatProvider())
       ],
       child: MyApp(savedThemeMode: savedThemeMode),
     ),

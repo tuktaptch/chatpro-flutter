@@ -13,4 +13,18 @@ class CShadow {
       offset: const Offset(0, 2),
     ),
   ];
+  static List<BoxShadow> get pinkShadow => [
+    BoxShadow(
+      blurRadius: 4,
+      color: CColors.hotPink.withAlpha(120),
+      offset: const Offset(1, 1),
+    ),
+  ];
+  static List<BoxShadow> get pinkLightShadow => [
+    BoxShadow(
+      blurRadius: 4,
+      color: CColors.lightPink,
+      offset: const Offset(1, 1),
+    ),
+  ];
 }
