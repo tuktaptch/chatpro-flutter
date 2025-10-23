@@ -1,6 +1,10 @@
 # 💬 ChatPro App (In Progress) 🚀
 
-A Flutter application I'm currently developing to practice **clean architecture**, **state management**, and **modern UI design**.  
+
+A Flutter application I'm currently developing to practice **clean architecture**, **state management**, and **modern UI design**.
+
+🎥 [Demo Video](https://drive.google.com/file/d/1BXCb6qqHimaxwuXXGcQ67p7kCMW1W476/view?usp=sharing)
+
 This project aims to explore reusable widget patterns and real-time data handling with Firebase.
 <img width="1920" height="1080" alt="1" src="https://github.com/user-attachments/assets/f3a8f306-e9c6-4d2c-ac45-0d997cbc0437" />
 <img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/65e6491d-db90-4035-867d-3d2302a5a285" />
