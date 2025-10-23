@@ -1,7 +1,7 @@
 import 'package:chat_pro/constraints/c_colors.dart';
 import 'package:chat_pro/constraints/c_typography.dart';
-import 'package:chat_pro/main_screen/chat_screen/chat_screen.dart';
-import 'package:chat_pro/main_screen/profile_screen/profile_screen.dart';
+import 'package:chat_pro/ui/chat_screen/chat_screen.dart';
+import 'package:chat_pro/ui/profile_screen/profile_screen.dart';
 import 'package:chat_pro/models/user_model.dart';
 import 'package:chat_pro/provider/authentication_provider.dart';
 import 'package:chat_pro/utilities/global_method.dart';

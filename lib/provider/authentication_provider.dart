@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:chat_pro/authentication/otp/otp_screen.dart';
+import 'package:chat_pro/ui/authentication/otp/otp_screen.dart';
 import 'package:chat_pro/constraints/constants.dart';
 import 'package:chat_pro/models/user_model.dart';
+import 'package:chat_pro/utilities/alert/alert.dart';
+import 'package:chat_pro/utilities/alert/toast_item.dart';
 import 'package:chat_pro/utilities/firebase_storage_util.dart';
 import 'package:chat_pro/utilities/global_method.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -79,6 +81,7 @@ class AuthenticationProvider extends ChangeNotifier {
     } catch (e, stack) {
       debugPrint('❌ Error fetching user data: $e');
       debugPrint(stack.toString());
+      Alert.show(stack.toString(), type: ToastType.failed);
     }
   }
 
@@ -169,6 +172,7 @@ class AuthenticationProvider extends ChangeNotifier {
         },
       );
     } catch (e) {
+      Alert.show(e.toString(), type: ToastType.failed);
       // จัดการ error ทั่วไป
       _isLoading = false;
       _isSuccessful = false;
@@ -204,6 +208,7 @@ class AuthenticationProvider extends ChangeNotifier {
       onSuccess(); // เรียก callback เมื่อสำเร็จ
       notifyListeners(); // แจ้ง UI รีเฟรช
     } catch (e) {
+      Alert.show(e.toString(), type: ToastType.failed);
       _isLoading = false; // โหลดเสร็จ แม้ล้มเหลว
       _isSuccessful = false; // สถานะล้มเหลว
       notifyListeners(); // แจ้ง UI
@@ -215,11 +220,10 @@ class AuthenticationProvider extends ChangeNotifier {
     }
   }
 
-  // ฟังก์ชันสำหรับบันทึกข้อมูลผู้ใช้ลง Firebase Firestore
-  // และอัปโหลดรูปภาพไป Firebase Storage หากมี
-  Future<void> saveUserDataToFirebase({
-    required UserModel userModel, // ข้อมูลผู้ใช้ที่จะบันทึก
-    required File? fileImage, // ไฟล์รูปภาพผู้ใช้ (อาจเป็น null)
+  // save user data to firestore
+  void saveUserDataToFireStore({
+    required UserModel userModel,
+    required File? fileImage,
     required Function onSuccess,
     required Function onFail,
   }) async {
@@ -227,45 +231,36 @@ class AuthenticationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // ตรวจสอบว่าผู้ใช้มีรูปภาพหรือไม่
       if (fileImage != null) {
+        // upload image to storage
         String imageUrl = await FirebaseStorageUtil.storeFileToStorage(
           file: fileImage,
           reference: '${Constants.userImages}/${userModel.uid}',
         );
 
-        // บันทึก URL รูปภาพลงใน userModel
         userModel.image = imageUrl;
       }
+
       userModel.lastSeen = DateTime.now().microsecondsSinceEpoch.toString();
       userModel.createdAt = DateTime.now().microsecondsSinceEpoch.toString();
 
-      _userModel = userModel; // เก็บข้อมูลผู้ใช้ใน provider
-      _uid = userModel.uid; // เก็บ UID ของผู้ใช้
+      _userModel = userModel;
+      _uid = userModel.uid;
 
-      // บันทึกข้อมูลผู้ใช้ลง Firestore
-      // collection: users
-      // document id: uid ของผู้ใช้
+      // save user data to firestore
       await _firestore
           .collection(Constants.users)
           .doc(userModel.uid)
-          .set(userModel.toMap()); // แปลง userModel เป็น Map ก่อนบันทึก
+          .set(userModel.toMap());
 
       _isLoading = false;
-      onSuccess(); // เรียก callback เมื่อสำเร็จ
+      onSuccess();
       notifyListeners();
     } on FirebaseException catch (e) {
-      if (e.message != null) {
-        onFail(e.message);
-      } else {
-        onFail('Something went wrong. Please try again later.');
-      }
-    } catch (e) {
-      onFail('Something went wrong. Please try again later.');
+      _isLoading = false;
+      notifyListeners();
+      onFail(e.toString());
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   //get user stream
